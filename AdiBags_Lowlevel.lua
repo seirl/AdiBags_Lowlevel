@@ -25,13 +25,17 @@ end
 
 -- The filter itself
 
-local setFilter = addon:RegisterFilter("Lowlevel", 62, 'ABEvent-1.0')
-setFilter.uiName = L['Lowlevel']
-setFilter.uiDesc = L['Put Low level items in their own sections.']
+local setFilter = addon:RegisterFilter("Lowlevel_BoE", 62, 'ABEvent-1.0')
+setFilter.uiName = L['Lowlevel_BoE']
+setFilter.uiDesc = L['Put low level BoE items in their own sections.']
+
+-- local setFilter2 = addon:RegisterFilter("Lowlevel_BoP", 62, 'ABEvent-1.0')
+-- setFilter.uiName = L['Lowlevel_BoP']
+-- setFilter.uiDesc = L['Put low level BoP items in their own sections.']
 
 function setFilter:OnInitialize()
   self.db = addon.db:RegisterNamespace('Lowlevel', {
-    profile = { enable = true, level = 800 },
+    profile = { enable = true, level = 400 },
     char = {  },
   })
 end
@@ -51,32 +55,37 @@ end
 local setNames = {}
 
 function setFilter:Filter(slotData)
-  tooltip = tooltip or create()
-  tooltip:SetOwner(UIParent,"ANCHOR_NONE")
-  tooltip:ClearLines()
+  GlobalSlotData = slotData;
 
-  if slotData.bag == BANK_CONTAINER then
-    tooltip:SetInventoryItem("player", BankButtonIDToInvSlotID(slotData.slot, nil))
-  else
-    tooltip:SetBagItem(slotData.bag, slotData.slot)
+  local lowlevel = false
+  local boe = false
+  local ilvl, isPreview, baselvl = GetDetailedItemLevelInfo(slotData.link)
+  if (ilvl == nil) then
+	return
   end
 
-  for i = 1,6 do
-    local t = tooltip.leftside[i]:GetText()
-    if t ~= nil then
-      local m = t:match("^Item Level (%d+)$")
-      if self.db.profile.enable and m ~= nil and tonumber(m) < self.db.profile.level then
-        return "Low level"
-      end
-    end
+  boe = C_Item.IsBound(ItemLocation:CreateFromBagAndSlot(slotData.bag, slotData.slot))
+  boe = not boe
+
+  if ilvl < self.db.profile.level then
+	lowlevel = true
   end
-  tooltip:Hide()
+  if slotData.class ~= "Armor" and slotData.class ~= "Weapon" then
+    return
+  end
+
+  if lowlevel and boe then
+    return "Low Level BoE"
+  end
+  if lowlevel then
+    return "Low Level BoP"
+  end
 end
 
 function setFilter:GetOptions()
   return {
     enable = {
-      name = L['Enable Lowlevel'],
+      name = L['Enable Lowlevel BoE'],
       desc = L['Check this if you want a section for lowlevel items.'],
       type = 'toggle',
       order = 10,
