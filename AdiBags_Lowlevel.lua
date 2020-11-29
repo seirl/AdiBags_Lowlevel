@@ -80,6 +80,9 @@ function setFilter:Filter(slotData)
   if lowlevel then
     return "Low Level BoP"
   end
+  if boe then
+    return "High Level BoE"
+  end
 end
 
 function setFilter:GetOptions()
