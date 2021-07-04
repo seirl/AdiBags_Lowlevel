@@ -9,20 +9,6 @@ local _, ns = ...
 local addon = LibStub('AceAddon-3.0'):GetAddon('AdiBags')
 local L = setmetatable({}, {__index = addon.L})
 
-local tooltip
-local function create()
-  local tip, leftside = CreateFrame("GameTooltip"), {}
-  for i = 1,6 do
-    local L,R = tip:CreateFontString(), tip:CreateFontString()
-    L:SetFontObject(GameFontNormal)
-    R:SetFontObject(GameFontNormal)
-    tip:AddFontStrings(L,R)
-    leftside[i] = L
-  end
-  tip.leftside = leftside
-  return tip
-end
-
 -- The filter itself
 
 local setFilter = addon:RegisterFilter("Lowlevel", 62, 'ABEvent-1.0')
@@ -51,26 +37,16 @@ end
 local setNames = {}
 
 function setFilter:Filter(slotData)
-  tooltip = tooltip or create()
-  tooltip:SetOwner(UIParent,"ANCHOR_NONE")
-  tooltip:ClearLines()
-
-  if slotData.bag == BANK_CONTAINER then
-    tooltip:SetInventoryItem("player", BankButtonIDToInvSlotID(slotData.slot, nil))
-  else
-    tooltip:SetBagItem(slotData.bag, slotData.slot)
+  if not self.db.profile.enable or slotData.equipSlot == nil then
+    return nil
   end
-
-  for i = 1,6 do
-    local t = tooltip.leftside[i]:GetText()
-    if t ~= nil then
-      local m = t:match("^Item Level (%d+)$")
-      if self.db.profile.enable and m ~= nil and tonumber(m) < self.db.profile.level then
-        return "Low level"
-      end
-    end
+  
+  local item = Item:CreateFromBagAndSlot(slotData.bag, slotData.slot)
+  local itemLevel = item and item:GetCurrentItemLevel() or 0
+  if itemLevel > 0 and slotData.equipSlot ~= "" and itemLevel < self.db.profile.level then
+    return "Low level"
   end
-  tooltip:Hide()
+  return nil
 end
 
 function setFilter:GetOptions()
