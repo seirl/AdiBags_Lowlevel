@@ -37,7 +37,7 @@ end
 local setNames = {}
 
 function setFilter:Filter(slotData)
-  if not self.db.profile.enable or slotData.equipSlot == nil then
+  if not self.db.profile.enable or not slotData.equipSlot then
     return nil
   end
   
