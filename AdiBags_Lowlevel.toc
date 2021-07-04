@@ -1,4 +1,4 @@
-## Interface: 90005
+## Interface: 90100
 
 ## Title: AdiBags - Filter for low level items
 ## Notes: Adds low level filters to AdiBags.
