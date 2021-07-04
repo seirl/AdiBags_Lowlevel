@@ -1,9 +1,9 @@
-## Interface: 80205
+## Interface: 90005
 
 ## Title: AdiBags - Filter for low level items
 ## Notes: Adds low level filters to AdiBags.
 ## Author: seirl
-## Version: 0.5
+## Version: 0.6
 
 ## Dependencies: AdiBags
 
